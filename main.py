@@ -117,59 +117,59 @@ def initial_interface():
 
         button(None, 'Play Game', 160, 160, 100, 40, green, bright_green, game_loop, 'human')
         # button on initial interface to take the user to the settings page
-        button(None, 'Settings', 160, 220, 100, 40, green, bright_green, Settingspage.settings_page, 'self')
+        button(None, 'Settings', 160, 220, 100, 40, green, bright_green, settings_page)
         button(None, 'Quit', 160, 280, 100, 40, red, bright_red, quitgame)
 
         pygame.display.update()
         pygame.time.Clock().tick(15)
 
-class Settingspage:
-    def settings_page(self):
-        intro = True
-        # Infinite loop for settings page screen
-        while intro:
-            events = pygame.event.get()
-            for event in events:
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-            screen.fill(white)
-            message_display(50, 'Settings', 210, 40)
-            message_display(20, 'Difficulty:', 50, 115)
-            button(0, 'Easy', 110, 100, 80, 40, green, bright_green, Settingspage().output_difficulty, 'easy')
-            button(1, 'Hard', 210, 100, 80, 40, green, bright_green, Settingspage().output_difficulty, 'hard')
-            message_display(20, 'Map:', 75, 200)
-            button(2, 'Ice', 110, 185, 80, 40, green, bright_green, Settingspage().output_map, 'ice')
-            button(3, 'Desert', 210, 185, 80, 40, green, bright_green, Settingspage().output_map, 'desert')
-            button(4, 'Fire', 310, 185, 80, 40, green, bright_green, Settingspage().output_map, 'fire')
-            button(None, 'Back', 170, 370, 80, 40, green, bright_green, initial_interface)
-            pygame.display.update()
-            pygame.time.Clock().tick(15)
 
-    def output_difficulty(self, option):
-        # change the difficulty global variable
-        global difficulty
-        difficulty = option
-        # reset previously selected buttons to inactive color
-        if option == 'easy':
-            global clicked
-            clicked[1] = False
-        elif option == 'hard':
-            clicked
-            clicked[0] = False
+def settings_page():
+    intro = True
+    # Infinite loop for settings page screen
+    while intro:
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        screen.fill(white)
+        message_display(50, 'Settings', 210, 40)
+        message_display(20, 'Difficulty:', 50, 115)
+        button(0, 'Easy', 110, 100, 80, 40, green, bright_green, output_difficulty, 'easy')
+        button(1, 'Hard', 210, 100, 80, 40, green, bright_green, output_difficulty, 'hard')
+        message_display(20, 'Map:', 75, 200)
+        button(2, 'Ice', 110, 185, 80, 40, green, bright_green, output_map, 'ice')
+        button(3, 'Desert', 210, 185, 80, 40, green, bright_green, output_map, 'desert')
+        button(4, 'Fire', 310, 185, 80, 40, green, bright_green, output_map, 'fire')
+        button(None, 'Back', 170, 370, 80, 40, green, bright_green, initial_interface)
+        pygame.display.update()
+        pygame.time.Clock().tick(15)
 
-    def output_map(self, option):
-        global map
-        map = option
-        if option == 'ice':
-            global clicked
-            clicked[3] = False
-            clicked[4] = False
-        elif option == 'desert':
-            clicked[2] = False
-            clicked[4] = False
-        elif option == 'fire':
-            clicked[2] = False
-            clicked[3] = False
+def output_difficulty(option):
+    # change the difficulty global variable
+    global difficulty
+    difficulty = option
+    # reset previously selected buttons to inactive color
+    if option == 'easy':
+        global clicked
+        clicked[1] = False
+    elif option == 'hard':
+        clicked
+        clicked[0] = False
+
+def output_map(option):
+    global map
+    map = option
+    if option == 'ice':
+        global clicked
+        clicked[3] = False
+        clicked[4] = False
+    elif option == 'desert':
+        clicked[2] = False
+        clicked[4] = False
+    elif option == 'fire':
+        clicked[2] = False
+        clicked[3] = False
 
 def game_loop(player, fps=10):
     game.restart_game()
