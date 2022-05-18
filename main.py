@@ -11,6 +11,7 @@ from pygame.locals import KEYDOWN, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_ESCAPE
 from pygame.locals import QUIT
 
 from game import Game
+from game import Wall
 
 black = pygame.Color(0, 0, 0)
 white = pygame.Color(255, 255, 255)
@@ -99,6 +100,10 @@ def initial_interface():
 def game_loop(player, fps=10):
     game.restart_game()
 
+    # Jerry's modification
+    game.random_walls(15)
+    # END
+
     while not game.game_end():
 
         pygame.event.pump()
@@ -109,6 +114,13 @@ def game_loop(player, fps=10):
         game.do_move(move)
 
         screen.fill(black)
+
+        # Jerry's modification
+        index = 0
+        while index < len(game.walls):
+            game.walls[index].blit(screen, "ice")
+            index += 1
+        # END
 
         game.snake.blit(rect_len, screen)
         game.strawberry.blit(screen)
