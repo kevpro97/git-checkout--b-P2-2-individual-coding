@@ -4,13 +4,15 @@ Created on Wed May 16 15:22:20 2018
 
 @author: zou
 """
-# Test for linking github to jira
+options = False
+from statistics import mode
 import pygame
 import time
 from pygame.locals import KEYDOWN, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_ESCAPE
 from pygame.locals import QUIT
 
 from game import Game
+from game import lives ,  parts , gamemode
 
 black = pygame.Color(0, 0, 0)
 white = pygame.Color(255, 255, 255)
@@ -66,6 +68,9 @@ def button(msg, x, y, w, h, inactive_color, active_color, action=None, parameter
     TextRect.center = (x + (w / 2), y + (h / 2))
     screen.blit(TextSurf, TextRect)
 
+        
+
+
 
 def quitgame():
     pygame.quit()
@@ -79,22 +84,37 @@ def crash():
 
 
 def initial_interface():
+    global options
     intro = True
+    
     while intro:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+        if options == False:
+            screen.fill(white)
+            message_display('Gluttonous', game.settings.width / 2 * 15, game.settings.height / 4 * 15)
 
-        screen.fill(white)
-        message_display('Gluttonous', game.settings.width / 2 * 15, game.settings.height / 4 * 15)
-
-        button('Go!', 80, 240, 80, 40, green, bright_green, game_loop, 'human')
-        button('Quit', 270, 240, 80, 40, red, bright_red, quitgame)
-
+            button('Go!', 80, 240, 80, 40, green, bright_green, game_loop, 'human')
+            button('Quit', 270, 240, 80, 40, red, bright_red, quitgame)
+            button('Options', 175, 240, 80, 40, yellow, bright_yellow, change_options)
+        elif options == True:# options menu 
+            screen.fill(white)
+            message_display('Gluttonous', game.settings.width / 2 * 15, game.settings.height / 4 * 15)
+            button('easy', 80, 240, 80, 40, green, bright_green,game.easy )
+            button('medium', 175, 240, 80, 40, yellow, bright_yellow,game.medium)
+            button('hard', 270, 240, 80, 40, red, bright_red, game.hard)
+    
+            button('back', 175, 320, 80, 40, yellow, bright_yellow,change_menu)
         pygame.display.update()
         pygame.time.Clock().tick(15)
-
+def change_options():
+    global options
+    options = True
+def change_menu():
+    global options
+    options = False
 
 def game_loop(player, fps=10):
     game.restart_game()
@@ -119,6 +139,9 @@ def game_loop(player, fps=10):
         fpsClock.tick(fps)
 
     crash()
+    
+
+    
 
 
 def human_move():
