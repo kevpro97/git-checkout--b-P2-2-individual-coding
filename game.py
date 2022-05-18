@@ -7,12 +7,22 @@ Created on Wed Apr 25 15:19:25 2018
 import pygame, random
 import numpy as np
 
+difficulty_setting = "normal"
+map_setting = "normal"
+
 class Settings:
     def __init__(self):
         # 屏幕属性
         self.width = 28
         self.height = 28
         self.rect_len = 15
+    # retrieve settings from main
+    def difficulty(self, setting):
+        global difficulty_setting
+        difficulty_setting = setting
+    def map(self, setting):
+        global map_setting
+        map_setting = setting
 
 class Snake:
     def __init__(self):
@@ -49,7 +59,7 @@ class Snake:
             screen.blit(self.image_left, (x, y))  
         else:
             screen.blit(self.image_right, (x, y))  
-            
+
     def blit_tail(self, x, y, screen):
         tail_direction = [self.segments[-2][i] - self.segments[-1][i] for i in range(2)]
         
@@ -64,6 +74,7 @@ class Snake:
     
     def blit(self, rect_len, screen):
         self.blit_head(self.segments[0][0]*rect_len, self.segments[0][1]*rect_len, screen)                
+        # Draws in body segments for the length of the snake excluding head and tail
         for position in self.segments[1:-1]:
             self.blit_body(position[0]*rect_len, position[1]*rect_len, screen)
         self.blit_tail(self.segments[-1][0]*rect_len, self.segments[-1][1]*rect_len, screen)                
@@ -79,17 +90,27 @@ class Snake:
         if self.facing == 'down':
             self.position[1] += 1
         self.segments.insert(0, list(self.position))
+
         
 class Strawberry():
     def __init__(self, settings):
         self.settings = settings
         
-        self.style = str(random.randint(1, 8))
+        self.style = str(random.randint(5, 5))
         self.image = pygame.image.load('images/food' + str(self.style) + '.bmp')        
         self.initialize()
         
     def random_pos(self, snake):
-        self.style = str(random.randint(1, 8))
+        # depending on difficulty setting, will determine which fruit spawns. to be determined
+        if difficulty_setting == "normal":
+            self.style = '1'
+            '''self.style = str(random.randint(1, 5))'''
+        elif difficulty_setting == "easy":
+            self.style = '2'
+            '''self.style = str(random.randint(1, 3))'''
+        elif difficulty_setting == "hard":
+            self.style = '5'
+            '''self.style = str(random.randint(4, 5))'''
         self.image = pygame.image.load('images/food' + str(self.style) + '.bmp')                
         
         self.position[0] = random.randint(0, self.settings.width-1)
@@ -100,6 +121,7 @@ class Strawberry():
         
         if self.position in snake.segments:
             self.random_pos(snake)
+        return self.position
 
     def blit(self, screen):
         screen.blit(self.image, [p * self.settings.rect_len for p in self.position])
@@ -157,11 +179,26 @@ class Game:
             self.snake.facing = change_direction
 
         self.snake.update()
-        
+
         if self.snake.position == self.strawberry.position:
+            # Fruit 4 adds 2 segments instead of 1
+            if self.strawberry.style == "5":
+                    if self.snake.facing == 'right':
+                        self.snake.position[0] += 1
+                    if self.snake.facing == 'left':
+                        self.snake.position[0] -= 1
+                    if self.snake.facing == 'up':
+                        self.snake.position[1] -= 1
+                    if self.snake.facing == 'down':
+                        self.snake.position[1] += 1
+                    self.snake.segments.insert(0, list(self.snake.position))
             self.strawberry.random_pos(self.snake)
+            # Fruit 2 doubles the score
+            if self.strawberry.style == "2":
+                self.snake.score += 2
+            else:
+                self.snake.score += 1
             reward = 1
-            self.snake.score += 1
         else:
             self.snake.segments.pop()
             reward = 0
