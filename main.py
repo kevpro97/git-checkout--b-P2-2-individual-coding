@@ -4,7 +4,7 @@ Created on Wed May 16 15:22:20 2018
 
 @author: zou
 """
-# Test for linking github to jira
+
 import pygame
 import time
 from pygame.locals import KEYDOWN, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_ESCAPE
