@@ -95,8 +95,6 @@ def button(textsize, buttontype, msg, x, y, w, h, inactive_color, active_color, 
     TextSurf, TextRect = text_objects(msg, smallText)
     TextRect.center = (x + (w / 2), y + (h / 2))
     screen.blit(TextSurf, TextRect)
-
-
 # End
 
 def quitgame():
@@ -109,7 +107,7 @@ def crash():
     message_display(50, 'crashed', game.settings.width / 2 * 15, game.settings.height / 3 * 15, white)
     time.sleep(1)
 
-
+# Kevin - altered initial interface, introduced instructions and settings pages
 def initial_interface():
     pygame.display.set_caption("Menu")
     intro = True
@@ -138,6 +136,7 @@ def instructions_page():
             if event.type == pygame.QUIT:
                 pygame.quit()
         screen.fill(white)
+        # contents of instructions page
         message_display(20, 'Instructions',game.settings.width/2 * 15, game.settings.height/4 + 10)
         message_display(10, 'The snake can be moved by the arrow keys. The aim is to eat as much food ',game.settings.width/2 * 15, game.settings.height/4 + 30)
         message_display(10, 'as possible without dying to a wall, the edges or the snake itself.', game.settings.width / 2 * 15, game.settings.height / 4 + 45)
@@ -158,11 +157,7 @@ def instructions_page():
 
         pygame.display.update()
         pygame.time.Clock().tick(15)
-# End
-
-
-
-# Kevin - settings page
+        
 def settings_page():
     pygame.display.set_caption("Settings")
     intro = True
@@ -172,6 +167,7 @@ def settings_page():
             if event.type == pygame.QUIT:
                 pygame.quit()
         screen.fill(white)
+        # contents of settings page
         message_display(50, 'Settings', 210, 40)
         message_display(20, 'Difficulty:', 50, 115)
         button(15, 0, 'Normal', 100, 100, 70, 40, green, bright_green, output_difficulty, 'normal')
