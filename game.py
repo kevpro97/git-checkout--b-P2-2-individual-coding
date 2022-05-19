@@ -7,12 +7,12 @@ Created on Wed Apr 25 15:19:25 2018
 import pygame, random
 import numpy as np
 gamemode = 'easy'
-new = False
+
 
 if gamemode == 'hard':
     lives = 1
 elif gamemode == 'medium':
-    ives = 2
+    lives = 2
 elif gamemode == 'easy':
     lives = 3
 
@@ -131,9 +131,9 @@ class Game:
                           3 : 'right'}       
         
     def restart_game(self):
-        global lives , gamemode, new
+        global lives , gamemode
         self.snake.parts = 3
-        new = False
+        
         if gamemode == 'hard':
             lives = 1
         elif gamemode == 'medium':
@@ -163,7 +163,7 @@ class Game:
         return direction_dict[direction]
         
     def do_move(self, move):
-        global new
+        
         move_dict = self.move_dict
         
         change_direction = move_dict[move]
@@ -184,7 +184,6 @@ class Game:
             reward = 1
             self.snake.score += 1
             self.snake.parts += 1
-            new = False # turn death statement back on when snake eat anything
             print(self.snake.parts)
         else:
             self.snake.segments.pop()
@@ -196,46 +195,28 @@ class Game:
         return reward
     
     def game_end(self):
-        global lives,  new
+        global lives
         end = False
-        if new == False:
-            if self.snake.position[0] >= self.settings.width or self.snake.position[0] < 0:
+
+        if self.snake.position[0] >= self.settings.width or self.snake.position[0] < 0:
                 lives -= 1
                 self.snake.facing = 'right'
                 self.snake.position = [6, 6]
                 self.snake.segments = [[6 - i, 6] for i in range(self.snake.parts)]
                 new = True
-            if self.snake.position[1] >= self.settings.height or self.snake.position[1] < 0:
+        if self.snake.position[1] >= self.settings.height or self.snake.position[1] < 0:
                 lives -= 1
                 self.snake.facing = 'right'
                 self.snake.position = [6, 6]
                 self.snake.segments = [[6 - i, 6] for i in range(self.snake.parts)]
                 new = True
-            if self.snake.segments[0] in self.snake.segments[1:]:
+        if self.snake.segments[0] in self.snake.segments[1:]:
                 lives -= 1
                 self.snake.facing = 'right'
                 self.snake.position = [6, 6]
                 self.snake.segments = [[6 - i, 6] for i in range(self.snake.parts)]
                 new = True
-        elif new == True: # disabling death after reset 
-            if self.snake.position[0] >= self.settings.width or self.snake.position[0] < 0:
-
-                self.snake.facing = 'right'
-                self.snake.position = [6, 6]
-                self.snake.segments = [[6 - i, 6] for i in range(self.snake.parts)]
-                new = True
-            if self.snake.position[1] >= self.settings.height or self.snake.position[1] < 0:
-
-                self.snake.facing = 'right'
-                self.snake.position = [6, 6]
-                self.snake.segments = [[6 - i, 6] for i in range(self.snake.parts)]
-                new = True
-            if self.snake.segments[0] in self.snake.segments[1:]:
-
-                self.snake.facing = 'right'
-                self.snake.position = [6, 6]
-                self.snake.segments = [[6 - i, 6] for i in range(self.snake.parts)]
-                new = True            
+          
         if lives == 0 :
             end = True
         return end
