@@ -9,15 +9,19 @@ import numpy as np
 # Kevin - Options variables
 difficulty_setting = "normal"
 map_setting = "normal"
+fps_setting = 6
 lives = 2
+
+
 # End
 
 class Settings:
     def __init__(self):
-        
+
         self.width = 28
         self.height = 28
         self.rect_len = 15
+
     # Kevin - retrieve settings from main
     def difficulty(self, setting):
         global difficulty_setting, lives
@@ -31,11 +35,19 @@ class Settings:
         elif difficulty_setting == 'easy':
             lives = 3
         # End
-    # Kevin - retrieve map settings from main
+
+    # Kevin - retrieve map and fps settings from main
     def map(self, setting):
         global map_setting
         map_setting = setting
+
+    def fps(self, setting):
+        global fps_setting
+        fps_setting = setting
     # End
+    def grab_fps(self):
+        global fps_setting
+        return fps_setting
 
 class Snake:
     def __init__(self):
@@ -49,7 +61,7 @@ class Snake:
         self.tail_down = pygame.image.load('images/tail_down.bmp')
         self.tail_left = pygame.image.load('images/tail_left.bmp')
         self.tail_right = pygame.image.load('images/tail_right.bmp')
-            
+
         self.image_body = pygame.image.load('images/body.bmp')
 
         self.facing = "right"
@@ -62,36 +74,35 @@ class Snake:
 
     def blit_body(self, x, y, screen):
         screen.blit(self.image_body, (x, y))
-        
+
     def blit_head(self, x, y, screen):
         if self.facing == "up":
             screen.blit(self.image_up, (x, y))
         elif self.facing == "down":
-            screen.blit(self.image_down, (x, y))  
+            screen.blit(self.image_down, (x, y))
         elif self.facing == "left":
-            screen.blit(self.image_left, (x, y))  
+            screen.blit(self.image_left, (x, y))
         else:
-            screen.blit(self.image_right, (x, y))  
+            screen.blit(self.image_right, (x, y))
 
     def blit_tail(self, x, y, screen):
         tail_direction = [self.segments[-2][i] - self.segments[-1][i] for i in range(2)]
-        
+
         if tail_direction == [0, -1]:
             screen.blit(self.tail_up, (x, y))
         elif tail_direction == [0, 1]:
-            screen.blit(self.tail_down, (x, y))  
+            screen.blit(self.tail_down, (x, y))
         elif tail_direction == [-1, 0]:
-            screen.blit(self.tail_left, (x, y))  
+            screen.blit(self.tail_left, (x, y))
         else:
-            screen.blit(self.tail_right, (x, y))  
-    
+            screen.blit(self.tail_right, (x, y))
+
     def blit(self, rect_len, screen):
-        self.blit_head(self.segments[0][0]*rect_len, self.segments[0][1]*rect_len, screen)                
+        self.blit_head(self.segments[0][0] * rect_len, self.segments[0][1] * rect_len, screen)
         for position in self.segments[1:-1]:
-            self.blit_body(position[0]*rect_len, position[1]*rect_len, screen)
-        self.blit_tail(self.segments[-1][0]*rect_len, self.segments[-1][1]*rect_len, screen)                
-            
-    
+            self.blit_body(position[0] * rect_len, position[1] * rect_len, screen)
+        self.blit_tail(self.segments[-1][0] * rect_len, self.segments[-1][1] * rect_len, screen)
+
     def update(self):
         if self.facing == 'right':
             self.position[0] += 1
@@ -103,40 +114,56 @@ class Snake:
             self.position[1] += 1
         self.segments.insert(0, list(self.position))
 
-        
+
 class Strawberry():
     def __init__(self, settings):
         self.settings = settings
-        
-        self.style = str(random.randint(5, 5))
-        self.image = pygame.image.load('images/food' + str(self.style) + '.bmp')        
+
+        self.style = str(random.randint(4, 4))
+        self.image = pygame.image.load('images/food' + str(self.style) + '.bmp')
         self.initialize()
-        
+
     # Jerry's modification: added a list as a parameter
     def random_pos(self, snake, walls: list):
-        # END
-        # Kevin - depending on difficulty setting, will determine which fruit spawns. to be determined
+    # END
+        # Kevin - depending on difficulty setting, will determine which fruit spawns.
+        #           Food 1 - Heart: Gain 1 life (easy mode)
+        #           Food 2 - Cherry: Gain 2 score (easy mode)
+        #           Food 3 - Banana Peel: Slow down fruit (easy mode)
+        #           Food 4 - Apple: Normal behaviour (normal mode)
+        #           Food 5 - avocado: Gain 2 length (hard mode)
+        #           Food 6 - Coffee: Speed up fruit (hard mode)
+
         if difficulty_setting == "normal":
-            self.style = '1'
-            '''self.style = str(random.randint(1, 5))'''
+            # normal mode: only apples can spawn
+            self.style = '4'
         elif difficulty_setting == "easy":
-            self.style = '2'
-            '''self.style = str(random.randint(1, 3))'''
+            # easy mode: heart, cherries, banana peels and apples can spawn
+            # heart and cherries have reduced chance to spawn
+            if not random.randint(1,20)%20:
+                self.style = "1"
+            elif not random.randint(1,10)%10:
+                self.style = '2'
+            else:
+                self.style = str(random.randint(3, 4))
         elif difficulty_setting == "hard":
-            self.style = '5'
-            '''self.style = str(random.randint(4, 5))'''
+            # hard mode: avocado and coffee spawn, where coffee has a reduced chance of spawning
+            if not random.randint(1,5)%5:
+                self.style = '6'
+            else:
+                self.style = str(random.randint(4, 5))
         # End
-        self.image = pygame.image.load('images/food' + str(self.style) + '.bmp')                
-        
-        self.position[0] = random.randint(0, self.settings.width-1)
-        self.position[1] = random.randint(0, self.settings.height-1)
+        self.image = pygame.image.load('images/food' + str(self.style) + '.bmp')
+
+        self.position[0] = random.randint(0, self.settings.width - 1)
+        self.position[1] = random.randint(0, self.settings.height - 1)
 
         self.position[0] = random.randint(9, 19)
         self.position[1] = random.randint(9, 19)
-        
+
         if self.position in snake.segments:
             self.random_pos(snake, walls)
-        return self.position
+
 
         # Jerry's modification: just making sure the berry doesn't spawn within the walls
         index = 0
@@ -150,13 +177,15 @@ class Strawberry():
                 # NOTE: using a recursive function here.
                 self.random_pos(snake, walls)
             index += 1
+        return self.position
         # END
 
     def blit(self, screen):
         screen.blit(self.image, [p * self.settings.rect_len for p in self.position])
-   
+
     def initialize(self):
         self.position = [15, 10]
+
 
 # Jerry's modification: implementing the walls to add different maps to the gameplay
 class Wall:
@@ -172,7 +201,7 @@ class Wall:
         #   as height and width. That is, in pixel terms, height * rect_len and
         #   width * rect_len.
         self.MAX_ROWS = self.settings.height
-        self.MAX_COLUMNS = self. settings.width
+        self.MAX_COLUMNS = self.settings.width
 
         # NOTE: the starting points of a Wall object.
         self.x_start = x_start
@@ -192,7 +221,7 @@ class Wall:
         elif (rows * self.settings.rect_len + y_start) > self.settings.height * 15 or \
                 (columns * self.settings.rect_len + x_start) > self.settings.width * 15:
             error_message = "Invalid value(s) for columns and/or rows." + \
-                "The dimensions for the columns and rows must not exceed the display's dimensions."
+                            "The dimensions for the columns and rows must not exceed the display's dimensions."
             raise ValueError(error_message)
 
     # NOTE: this function is used to display the walls.
@@ -227,19 +256,22 @@ class Wall:
         y_bottombound = self.y_start + (self.rows + 0) * self.settings.rect_len
 
         return [(x_leftbound, x_rightbound), (y_topbound, y_bottombound)]
+
+
 # END
-        
+
 class Game:
     """
     """
+
     def __init__(self):
         self.settings = Settings()
         self.snake = Snake()
         self.strawberry = Strawberry(self.settings)
-        self.move_dict = {0 : 'up',
-                          1 : 'down',
-                          2 : 'left',
-                          3 : 'right'}  
+        self.move_dict = {0: 'up',
+                          1: 'down',
+                          2: 'left',
+                          3: 'right'}
         # Jerry's modification
         self.walls = []
         # END
@@ -268,7 +300,7 @@ class Game:
                 rows = random.randint(3, 7)
 
             # NOTE: this function sets rows or columns to 1 randomly
-            if random.randint(1,10) % 2:
+            if random.randint(1, 10) % 2:
                 columns = 1
             else:
                 rows = 1
@@ -277,8 +309,9 @@ class Game:
             self.walls.append(Wall(x_start * 15, y_start * 15, rows, columns))
 
             index += 1
+
     # END
-  
+
     def restart_game(self):
         global lives, difficulty_setting
         # Quang - everytime a new game starts, reset the parts and lives count
@@ -293,29 +326,29 @@ class Game:
         self.snake.initialize()
         self.strawberry.initialize()
 
-    def current_state(self):         
-        state = np.zeros((self.settings.width+2, self.settings.height+2, 2))
+    def current_state(self):
+        state = np.zeros((self.settings.width + 2, self.settings.height + 2, 2))
         expand = [[0, 1], [0, -1], [-1, 0], [1, 0], [0, 2], [0, -2], [-2, 0], [2, 0]]
-        
+
         for position in self.snake.segments:
             state[position[1], position[0], 0] = 1
-        
-        state[:, :, 1] = -0.5        
+
+        state[:, :, 1] = -0.5
 
         state[self.strawberry.position[1], self.strawberry.position[0], 1] = 0.5
         for d in expand:
-            state[self.strawberry.position[1]+d[0], self.strawberry.position[0]+d[1], 1] = 0.5
+            state[self.strawberry.position[1] + d[0], self.strawberry.position[0] + d[1], 1] = 0.5
         return state
-    
+
     def direction_to_int(self, direction):
-        direction_dict = {value : key for key,value in self.move_dict.items()}
+        direction_dict = {value: key for key, value in self.move_dict.items()}
         return direction_dict[direction]
-        
+
     def do_move(self, move):
         move_dict = self.move_dict
-        
+
         change_direction = move_dict[move]
-        
+
         if change_direction == 'right' and not self.snake.facing == 'left':
             self.snake.facing = change_direction
         if change_direction == 'left' and not self.snake.facing == 'right':
@@ -326,40 +359,60 @@ class Game:
             self.snake.facing = change_direction
 
         self.snake.update()
-
+        # Kevin
         if self.snake.position == self.strawberry.position:
-            # Fruit 4 adds 2 segments instead of 1
+            # Fruit 5 avocado adds 2 segments instead of 1
             if self.strawberry.style == "5":
-                    if self.snake.facing == 'right':
-                        self.snake.position[0] += 1
-                    if self.snake.facing == 'left':
-                        self.snake.position[0] -= 1
-                    if self.snake.facing == 'up':
-                        self.snake.position[1] -= 1
-                    if self.snake.facing == 'down':
-                        self.snake.position[1] += 1
-                    self.snake.segments.insert(0, list(self.snake.position))
-            # Jerry's modification: added walls as an argument to make sure the berries
-            #   don't spawn within the walls
-            self.strawberry.random_pos(self.snake, self.walls)
-            # Fruit 2 doubles the score
+                if self.snake.facing == 'right':
+                    self.snake.position[0] += 1
+                if self.snake.facing == 'left':
+                    self.snake.position[0] -= 1
+                if self.snake.facing == 'up':
+                    self.snake.position[1] -= 1
+                if self.snake.facing == 'down':
+                    self.snake.position[1] += 1
+                self.snake.segments.insert(0, list(self.snake.position))
+
+            global difficulty_setting, fps_setting
+            # if Fruit 2 banana peel was eaten, slow the base speed down. If any other fruit was eaten,
+            # reset to easy base speed
+            if difficulty_setting == "easy":
+                if self.strawberry.style == "3":
+                    fps_setting = 2
+                else:
+                    fps_setting = 4
+            # if Fruit 6 coffee was eaten, speed the base speed up. If any other fruit was eaten, reset to hard base
+            # speed
+            elif difficulty_setting == "hard":
+                if self.strawberry.style == "6":
+                    fps_setting = 12
+                else:
+                    fps_setting = 8
+            # Fruit 2 cherry adds 2 to the score instead of 1
             if self.strawberry.style == "2":
                 self.snake.score += 2
             else:
                 self.snake.score += 1
+            # End
+
+            # Jerry's modification: added walls as an argument to make sure the berries
+            #   don't spawn within the walls
+            self.strawberry.random_pos(self.snake, self.walls)
+            # End
+
             reward = 1
             # Quang - everytime the snake eats a fruit, parts count goes up by 1
             self.snake.parts += 1
-            # End 
+            # End
         else:
             self.snake.segments.pop()
             reward = 0
-                
+
         if self.game_end():
             return -1
-                    
+
         return reward
-    
+
     def game_end(self):
         global lives
         end = False
@@ -379,8 +432,8 @@ class Game:
             self.snake.facing = 'right'
             self.snake.position = [0, 0]
             self.snake.segments = [[0 - i, 0] for i in range(self.snake.parts)]
-          # END
-        # Quang - if the user reaches 0 lives, the game ends
+        # END
+
 
         # Jerry's modification: checking if the snake has hit the wall
         # NOTE: the variable i checks through the list of walls.
@@ -399,17 +452,17 @@ class Game:
                 self.snake.segments = [[0 - i, 0] for i in range(self.snake.parts)]
             index += 1
         # END
-
-        if lives == 0 :
+        # Quang - if the user reaches 0 lives, the game ends
+        if lives == 0:
             end = True
         return end
-      # END
-    
+        # END
+
     def blit_score(self, color, screen):
         font = pygame.font.SysFont(None, 25)
         text = font.render('Score: ' + str(self.snake.score), True, color)
         screen.blit(text, (0, 0))
-        # Kevin -  Display lives
+        # Kevin -  Display lives count
         global lives
         text_lives = font.render('Lives: ' + str(lives), True, color)
         screen.blit(text_lives, (90, 0))
