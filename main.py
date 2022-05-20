@@ -35,6 +35,8 @@ pygame.display.set_caption('Gluttonous')
 
 crash_sound = pygame.mixer.Sound('./sound/crash.wav')
 
+counter = 5
+
 
 def text_objects(text, font, color=black):
     text_surface = font.render(text, True, color)
@@ -81,6 +83,7 @@ def crash():
 
 def initial_interface():
     intro = True
+    counter = 5
     while intro:
 
         for event in pygame.event.get():
@@ -144,11 +147,10 @@ def human_move():
 
     move = game.direction_to_int(direction)
     return move
+    
 
-
-def music_box():
-    # Plays music for user shuffled
-    counter = random.randint(1, 5)
+def music_box() -> None:
+    global counter
     if counter == 1:
         mixer.music.load('sound/Blue Mood.wav')
         # Music is repeated in-definitely
@@ -162,10 +164,16 @@ def music_box():
     elif counter == 4:
         mixer.music.load('sound/Escapism.wav')
         mixer.music.play(-1)
-    else:
+    elif counter == 5:
         mixer.music.load('sound/El Secreto.wav')
         mixer.music.play
-
+    else:
+        mixer.music.stop()
+        counter = 6
+        
+    time.sleep(0.2)
+    print(counter)
+    counter-=1
 
 if __name__ == "__main__":
     initial_interface()
