@@ -4,14 +4,14 @@ Created on Wed May 16 15:22:20 2018
 
 @author: zou
 """
-
 import pygame
 import time
+import random
+from pygame import mixer
 from pygame.locals import KEYDOWN, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_ESCAPE
 from pygame.locals import QUIT
 
 from game import Game
-from game import Wall
 
 black = pygame.Color(0, 0, 0)
 white = pygame.Color(255, 255, 255)
@@ -41,8 +41,8 @@ def text_objects(text, font, color=black):
     return text_surface, text_surface.get_rect()
 
 
-def message_display(text, x, y, color=black):
-    large_text = pygame.font.SysFont('comicsansms', 50)
+def message_display(text, x, y, color=white):
+    large_text = pygame.font.SysFont('Times', 50)
     text_surf, text_rect = text_objects(text, large_text, color)
     text_rect.center = (x, y)
     screen.blit(text_surf, text_rect)
@@ -62,7 +62,7 @@ def button(msg, x, y, w, h, inactive_color, active_color, action=None, parameter
     else:
         pygame.draw.rect(screen, inactive_color, (x, y, w, h))
 
-    smallText = pygame.font.SysFont('comicsansms', 20)
+    smallText = pygame.font.SysFont('Times', 20)
     TextSurf, TextRect = text_objects(msg, smallText)
     TextRect.center = (x + (w / 2), y + (h / 2))
     screen.blit(TextSurf, TextRect)
@@ -87,25 +87,22 @@ def initial_interface():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-        screen.fill(white)
+        screen.fill(black)
         message_display('Gluttonous', game.settings.width / 2 * 15, game.settings.height / 4 * 15)
 
+        # Button created for music to be played
+        button('\266', 10, 360, 40, 40, red, bright_red, music_box)
         button('Go!', 80, 240, 80, 40, green, bright_green, game_loop, 'human')
         button('Quit', 270, 240, 80, 40, red, bright_red, quitgame)
 
         pygame.display.update()
-        pygame.time.Clock().tick(15)
+        pygame.time.Clock().tick(25)
 
 
 def game_loop(player, fps=10):
     game.restart_game()
 
-    # Jerry's modification
-    game.random_walls(15)
-    # END
-
     while not game.game_end():
-
         pygame.event.pump()
 
         move = human_move()
@@ -114,13 +111,6 @@ def game_loop(player, fps=10):
         game.do_move(move)
 
         screen.fill(black)
-
-        # Jerry's modification
-        index = 0
-        while index < len(game.walls):
-            game.walls[index].blit(screen, "ice")
-            index += 1
-        # END
 
         game.snake.blit(rect_len, screen)
         game.strawberry.blit(screen)
@@ -154,6 +144,27 @@ def human_move():
 
     move = game.direction_to_int(direction)
     return move
+
+
+def music_box():
+    # Plays music for user shuffled
+    counter = random.randint(1, 5)
+    if counter == 1:
+        mixer.music.load('sound/Blue Mood.wav')
+        # Music is repeated in-definitely
+        mixer.music.play(-1)
+    elif counter == 2:
+        mixer.music.load('sound/Winning.wav')
+        mixer.music.play(-1)
+    elif counter == 3:
+        mixer.music.load('sound/Metro.wav')
+        mixer.music.play(-1)
+    elif counter == 4:
+        mixer.music.load('sound/Escapism.wav')
+        mixer.music.play(-1)
+    else:
+        mixer.music.load('sound/El Secreto.wav')
+        mixer.music.play
 
 
 if __name__ == "__main__":
