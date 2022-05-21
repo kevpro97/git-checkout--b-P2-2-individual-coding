@@ -6,7 +6,6 @@ Created on Wed May 16 15:22:20 2018
 """
 import pygame
 import time
-import random
 from pygame import mixer
 from pygame.locals import KEYDOWN, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_ESCAPE
 from pygame.locals import QUIT
@@ -94,7 +93,7 @@ def initial_interface():
         message_display('Gluttonous', game.settings.width / 2 * 15, game.settings.height / 4 * 15)
 
         # Button created for music to be played
-        button('\266', 10, 360, 40, 40, red, bright_red, music_box)
+        button('Music', 10, 360, 52, 52, red, bright_red, music_box)
         button('Go!', 80, 240, 80, 40, green, bright_green, game_loop, 'human')
         button('Quit', 270, 240, 80, 40, red, bright_red, quitgame)
 
@@ -147,13 +146,13 @@ def human_move():
 
     move = game.direction_to_int(direction)
     return move
-    
+
 
 def music_box() -> None:
     global counter
     if counter == 1:
         mixer.music.load('sound/Blue Mood.wav')
-        # Music is repeated in-definitely
+        # Mithil Modification -  Music is repeated in-definitely
         mixer.music.play(-1)
     elif counter == 2:
         mixer.music.load('sound/Winning.wav')
@@ -161,19 +160,15 @@ def music_box() -> None:
     elif counter == 3:
         mixer.music.load('sound/Metro.wav')
         mixer.music.play(-1)
-    elif counter == 4:
-        mixer.music.load('sound/Escapism.wav')
-        mixer.music.play(-1)
-    elif counter == 5:
-        mixer.music.load('sound/El Secreto.wav')
-        mixer.music.play
     else:
+        # Music is stopped if user shuffles through all possible tracks/playlists
         mixer.music.stop()
-        counter = 6
-        
+        counter = 4
+
     time.sleep(0.2)
     print(counter)
-    counter-=1
+    counter -= 1
+
 
 if __name__ == "__main__":
     initial_interface()
