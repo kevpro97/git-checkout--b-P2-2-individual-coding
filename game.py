@@ -6,6 +6,16 @@ Created on Wed Apr 25 15:19:25 2018
 """
 import pygame, random
 import numpy as np
+gamemode = 'easy'
+
+
+if gamemode == 'hard':
+    lives = 1
+elif gamemode == 'medium':
+    lives = 2
+elif gamemode == 'easy':
+    lives = 3
+
 
 class Settings:
     def __init__(self):
@@ -16,8 +26,8 @@ class Settings:
 
 class Snake:
     def __init__(self):
-        
-        self.image_up = pygame.image.load('images/head_up.bmp')
+        self.parts = 3
+        self.image_up = pygame.image.load('./images/head_up.bmp')
         self.image_down = pygame.image.load('images/head_down.bmp')
         self.image_left = pygame.image.load('images/head_left.bmp')
         self.image_right = pygame.image.load('images/head_right.bmp')
@@ -121,6 +131,16 @@ class Game:
                           3 : 'right'}       
         
     def restart_game(self):
+        global lives , gamemode
+        self.snake.parts = 3
+        
+        if gamemode == 'hard':
+            lives = 1
+        elif gamemode == 'medium':
+            lives = 2
+        elif gamemode == 'easy':
+            lives = 3
+        print(gamemode)
         self.snake.initialize()
         self.strawberry.initialize()
 
@@ -143,6 +163,7 @@ class Game:
         return direction_dict[direction]
         
     def do_move(self, move):
+        
         move_dict = self.move_dict
         
         change_direction = move_dict[move]
@@ -162,6 +183,8 @@ class Game:
             self.strawberry.random_pos(self.snake)
             reward = 1
             self.snake.score += 1
+            self.snake.parts += 1
+            print(self.snake.parts)
         else:
             self.snake.segments.pop()
             reward = 0
@@ -172,18 +195,44 @@ class Game:
         return reward
     
     def game_end(self):
+        global lives
         end = False
-        if self.snake.position[0] >= self.settings.width or self.snake.position[0] < 0:
-            end = True
-        if self.snake.position[1] >= self.settings.height or self.snake.position[1] < 0:
-            end = True
-        if self.snake.segments[0] in self.snake.segments[1:]:
-            end = True
 
+        if self.snake.position[0] >= self.settings.width or self.snake.position[0] < 0:
+                lives -= 1
+                self.snake.facing = 'right'
+                self.snake.position = [6, 6]
+                self.snake.segments = [[6 - i, 6] for i in range(self.snake.parts)]
+                new = True
+        if self.snake.position[1] >= self.settings.height or self.snake.position[1] < 0:
+                lives -= 1
+                self.snake.facing = 'right'
+                self.snake.position = [6, 6]
+                self.snake.segments = [[6 - i, 6] for i in range(self.snake.parts)]
+                new = True
+        if self.snake.segments[0] in self.snake.segments[1:]:
+                lives -= 1
+                self.snake.facing = 'right'
+                self.snake.position = [6, 6]
+                self.snake.segments = [[6 - i, 6] for i in range(self.snake.parts)]
+                new = True
+          
+        if lives == 0 :
+            end = True
         return end
-    
+
     def blit_score(self, color, screen):
         font = pygame.font.SysFont(None, 25)
         text = font.render('Score: ' + str(self.snake.score), True, color)
         screen.blit(text, (0, 0))
+    # difficulties
+    def hard(self):
+        global gamemode
+        gamemode = 'hard'
+    def medium(self):
+        global gamemode
+        gamemode = 'medium'
+    def easy(self):
+        global gamemode
+        gamemode = 'easy'
 
